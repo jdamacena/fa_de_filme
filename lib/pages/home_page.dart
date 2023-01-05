@@ -1,3 +1,5 @@
+import 'package:english_words/english_words.dart';
+import 'package:fa_de_filme/pages/details_page.dart';
 import 'package:fa_de_filme/pages/favorites_page.dart';
 import 'package:flutter/material.dart';
 
@@ -12,6 +14,9 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final _moviesSuggestions = <WordPair>[];
+  final _biggerFont = const TextStyle(fontSize: 18);
+
   void _openFavorites() {
     Navigator.of(context).push(
       MaterialPageRoute(
@@ -27,18 +32,44 @@ class _HomePageState extends State<HomePage> {
         title: Text(widget.title),
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: const <Widget>[
-            Text(
-              'Filmes em Cartaz no Momento',
-            ),
-          ],
-        ),
+        child: ListView.builder(
+            padding: const EdgeInsets.all(16.0),
+            // prototypeItem: ListTile(
+            //   title: Text(
+            //     "",
+            //     style: _biggerFont,
+            //   ),
+            // ),
+            itemBuilder: ((context, i) {
+              /* TODO the divider is conflicting with prototypeItem,
+                  it's getting it's height changed along with the other items */
+              if (i.isOdd) return const Divider();
+
+              final index = i ~/ 2;
+              if (index >= _moviesSuggestions.length) {
+                _moviesSuggestions.addAll(generateWordPairs().take(10));
+              }
+
+              var name = _moviesSuggestions[index].asPascalCase;
+
+              return ListTile(
+                title: Text(
+                  name,
+                  style: _biggerFont,
+                ),
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => DetailsPage(title: name),
+                    ),
+                  );
+                },
+              );
+            })),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _openFavorites,
-        tooltip: 'Increment',
+        tooltip: 'Open Favorites',
         child: const Icon(Icons.bookmark),
       ),
     );
