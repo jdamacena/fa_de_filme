@@ -1,6 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.juniordamacena.fa_de_filme">
-   <application
+
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <application
         android:label="fa_de_filme"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">

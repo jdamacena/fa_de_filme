@@ -30,4 +30,16 @@ class Movie {
     this.overview = "",
     this.isFavorite = false,
   });
+
+  factory Movie.fromJson(Map<String, dynamic> json) {
+    return Movie(
+      id: json['id'],
+      title: json['title'] ?? "",
+      posterPath: json['poster_path'] ?? "",
+      overview: json['overview'] ?? "-",
+      voteAverage: json['vote_average'] ?? -1.0,
+      releaseDate:  json['release_date'] ?? "-",
+      runtime: json['runtime'] ?? -1,
+    );
+  }
 }
