@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fa_de_filme/models/movie.dart';
 import 'package:flutter/material.dart';
 
@@ -26,8 +27,10 @@ class MovieGridTile extends StatelessWidget {
             child: Column(
               children: [
                 Expanded(
-                  child: Image.network(
-                    movie.posterPath,
+                  child: CachedNetworkImage(
+                    imageUrl: movie.posterPath,
+                    placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
+                    errorWidget: (context, url, error) => const Icon(Icons.image),
                     fit: BoxFit.fitHeight,
                   ),
                 ),

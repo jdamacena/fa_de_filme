@@ -1,8 +1,10 @@
 import 'dart:convert';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fa_de_filme/models/movie.dart';
 import 'package:fa_de_filme/utils/constants.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 
 /// Página de detalhes dos filmes
@@ -28,8 +30,17 @@ class _DetailsPageState extends State<DetailsPage> {
   }
 
   Future<Movie> fetchMovie(int movieId) async {
-    final response = await http.get(Uri.parse(
-        '${Constants.movieBaseUrl}/movie/$movieId?api_key=${Constants.apiKey}&language=pt-BR'));
+    final url = Uri(
+      scheme: 'https',
+      host: Constants.movieBaseUrl,
+      path: '3/movie/$movieId',
+      queryParameters: {
+        'api_key': dotenv.env['TMDB_KEY']!, // read it here
+        'language': 'pt-BR',
+      },
+    );
+
+    final response = await http.get(url);
 
     if (response.statusCode == 200) {
       // If the server did return a 200 OK response,
@@ -51,18 +62,14 @@ class _DetailsPageState extends State<DetailsPage> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
       clipBehavior: Clip.antiAlias,
       child: Expanded(
-        child: Container(
+        child: SizedBox(
           height: imgHeight,
-          child: Image.network(
-            imagePath,
+          child: CachedNetworkImage(
+            imageUrl: imagePath,
+            placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
+            errorWidget: (context, url, error) => const Icon(Icons.image),
             height: imgHeight,
             fit: BoxFit.contain,
-            errorBuilder: (context, error, stackTrace) {
-              return const Icon(
-                Icons.image,
-                color: Colors.grey,
-              );
-            },
           ),
         ),
       ),
@@ -89,9 +96,7 @@ class _DetailsPageState extends State<DetailsPage> {
         }
 
         // By default, show the movie info received from the list.
-        return getPageContent(
-          movie,
-        );
+        return getPageContent(movie);
       },
     );
 
@@ -141,7 +146,7 @@ class _DetailsPageState extends State<DetailsPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text("Data de lançamento: ${movie.releaseDate}"),
-                        Text("Duração: ${(movie.runtime >= 0) ? "${movie.runtime} min." : "-"}"),
+                        Text("Duração: ${(movie.runtime > 0) ? "${movie.runtime} min." : "-"}"),
                         Row(
                           children: [
                             Text(

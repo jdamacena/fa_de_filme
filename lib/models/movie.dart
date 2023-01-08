@@ -37,7 +37,7 @@ class Movie {
       title: json['title'] ?? "",
       posterPath: json['poster_path'] ?? "",
       overview: json['overview'] ?? "-",
-      voteAverage: json['vote_average'] ?? -1.0,
+      voteAverage: ((json['vote_average'] ?? -1) as num).toDouble(),
       releaseDate:  json['release_date'] ?? "-",
       runtime: json['runtime'] ?? -1,
     );

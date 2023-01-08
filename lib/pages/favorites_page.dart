@@ -1,4 +1,3 @@
-import 'package:english_words/english_words.dart';
 import 'package:fa_de_filme/widgets/movie_grid_tile.dart';
 import 'package:flutter/material.dart';
 
@@ -14,8 +13,6 @@ class FavoritesPage extends StatefulWidget {
 }
 
 class _FavoritesPageState extends State<FavoritesPage> {
-  final _moviesSuggestions = <WordPair>[];
-
   @override
   Widget build(BuildContext context) {
     var moviesList = Container(
@@ -27,11 +24,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
         ),
         padding: const EdgeInsets.all(8.0),
         itemBuilder: ((context, index) {
-          if (index >= _moviesSuggestions.length) {
-            _moviesSuggestions.addAll(generateWordPairs().take(10));
-          }
-
-          var name = _moviesSuggestions[index].asPascalCase;
+          var name = "Item $index";
 
           var movieMock = Movie(
               id: 99,
