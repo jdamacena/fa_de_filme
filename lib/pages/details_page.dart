@@ -6,6 +6,8 @@ import 'package:fa_de_filme/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
+import 'package:path/path.dart';
+import 'package:sqflite/sqflite.dart';
 
 /// Página de detalhes dos filmes
 class DetailsPage extends StatefulWidget {
@@ -20,15 +22,25 @@ class DetailsPage extends StatefulWidget {
 class _DetailsPageState extends State<DetailsPage> {
   late Movie _movie;
   late Future<Movie> _futureMovie;
+  late Future<Database> _database;
 
   @override
-  void initState() {
+  void initState()  {
     super.initState();
+
+    WidgetsFlutterBinding.ensureInitialized();
+
+    initDatabase();
 
     _movie = widget.movie;
     _futureMovie = fetchMovie(_movie.id);
   }
 
+  Future<void> initDatabase() async {
+    _database = openDatabase(join(await getDatabasesPath(), Constants.databaseName));
+  }
+
+  /// Get a movie's details from the internet
   Future<Movie> fetchMovie(int movieId) async {
     final url = Uri(
       scheme: 'https',
@@ -51,6 +63,32 @@ class _DetailsPageState extends State<DetailsPage> {
       // then throw an exception.
       throw Exception('Erro ao carregar filmes');
     }
+  }
+
+  /// Save a movie in the local database
+  Future<void> saveAsFavorite(Movie movie) async {
+    final db = await _database;
+
+    if (!movie.isFavorite) {
+      movie.isFavorite = true;
+
+      await db.insert(
+        'favorites',
+        movie.toMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+    }
+  }
+
+  /// Delete a movie from the local database
+  Future<void> deleteFavorite(int id) async {
+    final db = await _database;
+
+    await db.delete(
+      'favorites',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
   }
 
   Widget getImageWidget(Movie movie) {
@@ -80,11 +118,13 @@ class _DetailsPageState extends State<DetailsPage> {
   Widget build(BuildContext context) {
     var movie = _movie;
 
-    var testView = FutureBuilder<Movie>(
+    return FutureBuilder<Movie>(
       future: _futureMovie,
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           _movie = snapshot.data!;
+
+          _movie.isFavorite = movie.isFavorite;
 
           movie = _movie;
 
@@ -99,8 +139,6 @@ class _DetailsPageState extends State<DetailsPage> {
         return getPageContent(movie);
       },
     );
-
-    return testView;
   }
 
   /// Fills the page with movie information
@@ -109,13 +147,29 @@ class _DetailsPageState extends State<DetailsPage> {
       appBar: AppBar(
         title: Text(movie.title),
         actions: [
+          if(!movie.isFavorite)
           IconButton(
             tooltip: "Favoritar",
             icon: const Icon(
+              Icons.bookmark_border,
+            ),
+            onPressed: () async {
+              await saveAsFavorite(movie);
+              setState(() {});
+            },
+          ) else IconButton(
+            tooltip: "Remover Favorito",
+            icon: const Icon(
               Icons.bookmark,
             ),
-            onPressed: () {},
-          ),
+            onPressed: () async {
+              await deleteFavorite(movie.id);
+
+              setState(() {
+                movie.isFavorite = false;
+              });
+            },
+          ) ,
         ],
       ),
       body: ListView(

@@ -42,4 +42,33 @@ class Movie {
       runtime: json['runtime'] ?? -1,
     );
   }
+
+  // Convert into a Map. The keys must correspond to the names of the
+  // columns in the database.
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'title': title,
+      'overview': overview,
+      'release_date': releaseDate,
+      'poster_path': posterPath,
+      'is_favorite': isFavorite ? 1 : 0,
+      'vote_average': voteAverage,
+      'runtime': runtime,
+    };
+  }
+
+  @override
+  String toString() {
+    return 'Movie{'
+        'id $id, '
+        'title $title, '
+        'overview $overview, '
+        'release_date $releaseDate, '
+        'poster_path $posterPath, '
+        'is_favorite $isFavorite, '
+        'vote_average $voteAverage, '
+        'runtime $runtime'
+        '}';
+  }
 }
