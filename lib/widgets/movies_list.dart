@@ -111,7 +111,6 @@ class MoviesListWidgetState extends State<MoviesListWidget> {
           itemBuilder: (context, movie, index) {
             movie.posterPath = Constants.imageBaseUrl + movie.posterPath;
 
-            print(movie.title);
             return MovieGridTile(
               movie: movie,
               onTap: () {
