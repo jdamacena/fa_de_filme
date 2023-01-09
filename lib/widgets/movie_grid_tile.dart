@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fa_de_filme/models/movie.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class MovieGridTile extends StatelessWidget {
   final Movie movie;
@@ -17,6 +18,11 @@ class MovieGridTile extends StatelessWidget {
   Widget build(BuildContext context) {
     const titleStyle = TextStyle(fontSize: 16);
     const subtitleStyle = TextStyle(fontSize: 12);
+
+    var inputDate = DateTime.parse(movie.releaseDate);
+    var outputFormat = DateFormat('dd/MM/yyyy');
+
+    String formattedReleaseDate = outputFormat.format(inputDate);
 
     return GridTile(
       child: Card(
@@ -43,13 +49,13 @@ class MovieGridTile extends StatelessWidget {
                       style: titleStyle,
                     ),
                     Text(
-                      movie.releaseDate,
+                      formattedReleaseDate,
                       style: subtitleStyle,
                     ),
                     Row(
                       children: [
                         Text(
-                          "${movie.voteAverage.toStringAsFixed(2)}/10",
+                          "${movie.voteAverage.toStringAsFixed(1)}/10",
                           style: subtitleStyle,
                         ),
                         const Icon(

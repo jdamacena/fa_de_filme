@@ -8,6 +8,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:intl/intl.dart';
 
 /// Página de detalhes dos filmes
 class DetailsPage extends StatefulWidget {
@@ -143,6 +144,11 @@ class _DetailsPageState extends State<DetailsPage> {
 
   /// Fills the page with movie information
   Widget getPageContent(Movie movie, {String? error}) {
+    var inputDate = DateTime.parse(movie.releaseDate);
+    var outputFormat = DateFormat('dd/MM/yyyy');
+
+    String formattedReleaseDate = outputFormat.format(inputDate);
+
     return Scaffold(
       appBar: AppBar(
         title: Text(movie.title),
@@ -199,8 +205,8 @@ class _DetailsPageState extends State<DetailsPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text("Data de lançamento: ${movie.releaseDate}"),
-                        Text("Duração: ${(movie.runtime > 0) ? "${movie.runtime} min." : "-"}"),
+                        Text("Data de lançamento: $formattedReleaseDate"),
+                        Text("Duração: ${(movie.runtime > 0) ? getFormattedRuntime(movie.runtime) : "-"}"),
                         Row(
                           children: [
                             Text(
@@ -229,5 +235,14 @@ class _DetailsPageState extends State<DetailsPage> {
         ],
       ),
     );
+  }
+
+  String getFormattedRuntime(int runtime) {
+    var hours = runtime ~/ 60;
+    var minutes = runtime - (hours * 60);
+
+    String formattedDuration = "${hours}h ${minutes.toString().padLeft(2, '0')}m";
+
+    return formattedDuration;
   }
 }
