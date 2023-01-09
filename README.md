@@ -2,11 +2,20 @@
 
 Um app que te ajuda a descobrir os filmes que estão em alta no momento!
 
+## Detalhes Técnicos
+
 O app foi feito usando Flutter, ele dispõe uma lista de filmes que são carregados a medida em que a tela é rolada, também possui um sistema para salvar seus filmes favoritos, faz uso do pacote sqflite para salvar os filmes no banco de dados local. 
 
 Erros como falta de internet ou uma falta de retorno do servidor são tratados e o app ainda mostra uma tela amigável quando não há nenhum favorito. 
 
-Abaixo seguem alguns prints do mesmo funcionando.
+## Como rodar
+
+- Este app está otimizado para funcionar com Android (devido ao sqflite);
+- Nenhum procedimento especial é necessário para rodar este app Flutter.
+
+## Screenshots
+
+Abaixo seguem alguns prints do app funcionando.
 
 
 <img src="https://user-images.githubusercontent.com/19500428/211239534-b901534d-23cf-4e08-af8d-0c2c3bb98041.png" width="300">
