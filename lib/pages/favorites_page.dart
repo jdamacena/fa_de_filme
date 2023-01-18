@@ -108,9 +108,6 @@ class _FavoritesPageState extends State<FavoritesPage> {
         itemCount: list.length,
         itemBuilder: ((context, index) {
           var movie = list[index];
-          var imagePath = Constants.imageBaseUrl + movie.posterPath;
-
-          movie.posterPath = imagePath;
 
           return MovieGridTile(
             movie: movie,

@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fa_de_filme/models/movie.dart';
+import 'package:fa_de_filme/repository/moviesApi.dart';
+import 'package:fa_de_filme/repository/moviesApiImpl.dart';
 import 'package:fa_de_filme/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -34,36 +36,13 @@ class _DetailsPageState extends State<DetailsPage> {
     initDatabase();
 
     _movie = widget.movie;
-    _futureMovie = fetchMovie(_movie.id);
+
+    MoviesApi moviesApi = MoviesApiImpl();
+    _futureMovie = moviesApi.getMovieDetails(_movie.id);
   }
 
   Future<void> initDatabase() async {
     _database = openDatabase(join(await getDatabasesPath(), Constants.databaseName));
-  }
-
-  /// Get a movie's details from the internet
-  Future<Movie> fetchMovie(int movieId) async {
-    final url = Uri(
-      scheme: 'https',
-      host: Constants.movieBaseUrl,
-      path: '3/movie/$movieId',
-      queryParameters: {
-        'api_key': dotenv.env['TMDB_KEY']!, // read it here
-        'language': 'pt-BR',
-      },
-    );
-
-    final response = await http.get(url);
-
-    if (response.statusCode == 200) {
-      // If the server did return a 200 OK response,
-      // then parse the JSON.
-      return Movie.fromJson(jsonDecode(response.body));
-    } else {
-      // If the server did not return a 200 OK response,
-      // then throw an exception.
-      throw Exception('Erro ao carregar filmes');
-    }
   }
 
   /// Save a movie in the local database
@@ -93,8 +72,7 @@ class _DetailsPageState extends State<DetailsPage> {
   }
 
   Widget getImageWidget(Movie movie) {
-    var imagePath = Constants.imageBaseUrl + movie.posterPath;
-
+    String imagePath = movie.posterPath;
     double imgHeight = 208.0;
 
     return Material(
