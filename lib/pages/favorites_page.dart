@@ -1,7 +1,6 @@
-import 'package:fa_de_filme/utils/constants.dart';
+import 'package:fa_de_filme/di/service_locator.dart';
 import 'package:fa_de_filme/widgets/movie_grid_tile.dart';
 import 'package:flutter/material.dart';
-import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
 import '../models/movie.dart';
@@ -25,14 +24,9 @@ class _FavoritesPageState extends State<FavoritesPage> {
   }
 
   Future<List<Movie>> movies() async {
-    WidgetsFlutterBinding.ensureInitialized();
+    final database = await getIt.get<Future<Database>>();
 
-    final database = openDatabase(
-        join(await getDatabasesPath(), Constants.databaseName));
-
-    final db = await database;
-
-    final List<Map<String, dynamic>> maps = await db.query('favorites');
+    final List<Map<String, dynamic>> maps = await database.query('favorites');
 
     return List.generate(maps.length, (i) {
       return Movie(

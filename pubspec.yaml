@@ -43,6 +43,7 @@ dependencies:
   cached_network_image: ^3.2.3
   flutter_dotenv: ^5.0.2
   intl: ^0.18.0
+  get_it: ^7.2.0
 
 dev_dependencies:
   test: ^1.22.1
@@ -52,7 +53,7 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^2.0.0
+  flutter_lints: ^2.0.1
   flutter_launcher_icons: ^0.11.0
 
 # For information on the generic Dart part of this file, see the

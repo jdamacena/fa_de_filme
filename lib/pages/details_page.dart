@@ -1,16 +1,12 @@
-import 'dart:convert';
-
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:fa_de_filme/di/service_locator.dart';
 import 'package:fa_de_filme/models/movie.dart';
 import 'package:fa_de_filme/repository/moviesApi.dart';
 import 'package:fa_de_filme/repository/moviesApiImpl.dart';
-import 'package:fa_de_filme/utils/constants.dart';
+import 'package:fa_de_filme/utils/formatter.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:http/http.dart' as http;
-import 'package:path/path.dart';
-import 'package:sqflite/sqflite.dart';
 import 'package:intl/intl.dart';
+import 'package:sqflite/sqflite.dart';
 
 /// Página de detalhes dos filmes
 class DetailsPage extends StatefulWidget {
@@ -25,15 +21,10 @@ class DetailsPage extends StatefulWidget {
 class _DetailsPageState extends State<DetailsPage> {
   late Movie _movie;
   late Future<Movie> _futureMovie;
-  late Future<Database> _database;
 
   @override
   void initState()  {
     super.initState();
-
-    WidgetsFlutterBinding.ensureInitialized();
-
-    initDatabase();
 
     _movie = widget.movie;
 
@@ -41,18 +32,14 @@ class _DetailsPageState extends State<DetailsPage> {
     _futureMovie = moviesApi.getMovieDetails(_movie.id);
   }
 
-  Future<void> initDatabase() async {
-    _database = openDatabase(join(await getDatabasesPath(), Constants.databaseName));
-  }
-
   /// Save a movie in the local database
   Future<void> saveAsFavorite(Movie movie) async {
-    final db = await _database;
+    final database = await getIt.get<Future<Database>>();
 
     if (!movie.isFavorite) {
       movie.isFavorite = true;
 
-      await db.insert(
+      await database.insert(
         'favorites',
         movie.toMap(),
         conflictAlgorithm: ConflictAlgorithm.replace,
@@ -62,9 +49,9 @@ class _DetailsPageState extends State<DetailsPage> {
 
   /// Delete a movie from the local database
   Future<void> deleteFavorite(int id) async {
-    final db = await _database;
+    final database = await getIt.get<Future<Database>>();
 
-    await db.delete(
+    await database.delete(
       'favorites',
       where: 'id = ?',
       whereArgs: [id],
@@ -213,14 +200,5 @@ class _DetailsPageState extends State<DetailsPage> {
         ],
       ),
     );
-  }
-
-  String getFormattedRuntime(int runtime) {
-    var hours = runtime ~/ 60;
-    var minutes = runtime - (hours * 60);
-
-    String formattedDuration = "${hours}h ${minutes.toString().padLeft(2, '0')}m";
-
-    return formattedDuration;
   }
 }
