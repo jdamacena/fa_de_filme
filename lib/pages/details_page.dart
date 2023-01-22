@@ -171,7 +171,7 @@ class _DetailsPageState extends State<DetailsPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text("Data de lançamento: $formattedReleaseDate"),
-                        Text("Duração: ${(movie.runtime > 0) ? getFormattedRuntime(movie.runtime) : "-"}"),
+                        Text("Duração: ${(movie.runtime > 0) ? Formatter.minutesToFormattedDuration(movie.runtime) : "-"}"),
                         Row(
                           children: [
                             Text(
