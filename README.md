@@ -11,7 +11,7 @@ Erros como falta de internet ou uma falta de retorno do servidor são tratados e
 ## Como rodar
 
 - Este app está otimizado para funcionar com Android (devido ao sqflite);
-- Nenhum procedimento especial é necessário para rodar este app Flutter.
+- Para rodar o app é necessário criar um arquivo chamado ".env" na raiz do projeto, e nele colocar a seguinte linha ```TMDB_KEY="sua_API_key"```, substituindo ```sua_API_key``` por uma chave verdadeira da API TMDB, conseguida em https://www.themoviedb.org/documentation/api.
 
 ## Screenshots
 
