@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:easy_image_viewer/easy_image_viewer.dart';
 import 'package:fa_de_filme/di/service_locator.dart';
 import 'package:fa_de_filme/models/movie.dart';
 import 'package:fa_de_filme/repository/movies_api.dart';
@@ -61,21 +62,35 @@ class _DetailsPageState extends State<DetailsPage> {
     String imagePath = movie.posterPath;
     double imgHeight = 208.0;
 
-    return Material(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-      clipBehavior: Clip.antiAlias,
-      child: Expanded(
-        child: SizedBox(
-          height: imgHeight,
-          child: CachedNetworkImage(
-            imageUrl: imagePath,
-            placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
-            errorWidget: (context, url, error) => const Icon(Icons.image),
+
+    return GestureDetector(
+      onTap: () => _showImageModalFromUrl(movie.posterPath),
+      child: Material(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+        clipBehavior: Clip.antiAlias,
+        child: Expanded(
+          child: SizedBox(
             height: imgHeight,
-            fit: BoxFit.contain,
+            child: CachedNetworkImage(
+              imageUrl: imagePath,
+              placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
+              errorWidget: (context, url, error) => const Icon(Icons.image),
+              height: imgHeight,
+              fit: BoxFit.contain,
+            ),
           ),
         ),
       ),
+    );
+  }
+
+  void _showImageModalFromUrl(String imageUrl) {
+    final imageProvider = CachedNetworkImageProvider(imageUrl);
+
+    showImageViewer(
+      context,
+      imageProvider,
+      doubleTapZoomable: true,
     );
   }
 
