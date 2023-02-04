@@ -1,6 +1,3 @@
-import 'dart:convert';
-
-import 'package:fa_de_filme/models/movie.dart';
 import 'package:fa_de_filme/utils/formatter.dart';
 import 'package:test/test.dart';
 
