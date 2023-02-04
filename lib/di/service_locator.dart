@@ -1,4 +1,7 @@
+import 'package:fa_de_filme/repository/movies_api.dart';
+import 'package:fa_de_filme/repository/movies_api_impl.dart';
 import 'package:fa_de_filme/utils/constants.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get_it/get_it.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
@@ -26,5 +29,5 @@ Future<void> initServiceLocator() async {
     ),
   );
 
-
+  getIt.registerLazySingleton<MoviesApi>(() => MoviesApiImpl(dotenv.env['TMDB_KEY']!));
 }

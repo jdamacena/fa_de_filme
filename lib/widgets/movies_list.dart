@@ -1,8 +1,8 @@
+import 'package:fa_de_filme/di/service_locator.dart';
 import 'package:fa_de_filme/models/movie.dart';
 import 'package:fa_de_filme/models/movies_list_response.dart';
 import 'package:fa_de_filme/pages/details_page.dart';
-import 'package:fa_de_filme/repository/moviesApi.dart';
-import 'package:fa_de_filme/repository/moviesApiImpl.dart';
+import 'package:fa_de_filme/repository/movies_api.dart';
 import 'package:fa_de_filme/widgets/movie_grid_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
@@ -30,7 +30,7 @@ class MoviesListWidgetState extends State<MoviesListWidget> {
   }
 
   Future<void> _fetchMoviesPage(int pageKey) async {
-    MoviesApi moviesApi = MoviesApiImpl();
+    MoviesApi moviesApi = getIt.get<MoviesApi>();
 
     try {
       MoviesListResponse moviesListResponse = await moviesApi.getNowPlaying(pageKey);

@@ -1,8 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fa_de_filme/di/service_locator.dart';
 import 'package:fa_de_filme/models/movie.dart';
-import 'package:fa_de_filme/repository/moviesApi.dart';
-import 'package:fa_de_filme/repository/moviesApiImpl.dart';
+import 'package:fa_de_filme/repository/movies_api.dart';
 import 'package:fa_de_filme/utils/formatter.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -28,7 +27,7 @@ class _DetailsPageState extends State<DetailsPage> {
 
     _movie = widget.movie;
 
-    MoviesApi moviesApi = MoviesApiImpl();
+    MoviesApi moviesApi = getIt.get<MoviesApi>();
     _futureMovie = moviesApi.getMovieDetails(_movie.id);
   }
 
