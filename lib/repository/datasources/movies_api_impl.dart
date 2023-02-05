@@ -2,13 +2,14 @@ import 'dart:convert';
 
 import 'package:fa_de_filme/models/movie.dart';
 import 'package:fa_de_filme/models/movies_list_response.dart';
-import 'package:fa_de_filme/repository/movies_api.dart';
+import 'package:fa_de_filme/repository/datasources/movies_api.dart';
 import 'package:fa_de_filme/utils/constants.dart';
 import 'package:http/http.dart' as http;
 
 class MoviesApiImpl extends MoviesApi {
+  final String apiKey;
 
-  MoviesApiImpl(super.apiKey);
+  MoviesApiImpl(this.apiKey) : super(apiKey);
 
   @override
   Future<MoviesListResponse> getNowPlaying(int pageKey) async {

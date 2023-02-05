@@ -1,7 +1,7 @@
 import 'package:fa_de_filme/di/service_locator.dart';
+import 'package:fa_de_filme/repository/movies_repository.dart';
 import 'package:fa_de_filme/widgets/movie_grid_tile.dart';
 import 'package:flutter/material.dart';
-import 'package:sqflite/sqflite.dart';
 
 import '../models/movie.dart';
 import 'details_page.dart';
@@ -20,31 +20,13 @@ class _FavoritesPageState extends State<FavoritesPage> {
   @override
   void initState() {
     super.initState();
-    futureAlbum = movies();
-  }
-
-  Future<List<Movie>> movies() async {
-    final database = await getIt.get<Future<Database>>();
-
-    final List<Map<String, dynamic>> maps = await database.query('favorites');
-
-    return List.generate(maps.length, (i) {
-      return Movie(
-        id: maps[i]['id'],
-        title: maps[i]['title'],
-        runtime: maps[i]['runtime'],
-        overview: maps[i]['overview'],
-        posterPath: maps[i]['poster_path'],
-        isFavorite: (maps[i]['is_favorite'] as num) == 1,
-        releaseDate: maps[i]['release_date'],
-        voteAverage: maps[i]['vote_average'],
-      );
-    });
+    futureAlbum = getIt.get<MoviesRepository>().listFavoriteMovies();
   }
 
   @override
   Widget build(BuildContext context) {
-  var content =  FutureBuilder<List<Movie>>(
+    // TODO: 05/02/2023 add pull to refresh functionality
+    var content = FutureBuilder<List<Movie>>(
       future: futureAlbum,
       builder: (context, snapshot) {
         if (snapshot.hasData) {

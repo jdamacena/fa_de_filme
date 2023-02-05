@@ -2,8 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:easy_image_viewer/easy_image_viewer.dart';
 import 'package:fa_de_filme/di/service_locator.dart';
 import 'package:fa_de_filme/models/movie.dart';
-import 'package:fa_de_filme/repository/dao.dart';
-import 'package:fa_de_filme/repository/movies_api.dart';
+import 'package:fa_de_filme/repository/movies_repository.dart';
 import 'package:fa_de_filme/utils/formatter.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -28,8 +27,8 @@ class _DetailsPageState extends State<DetailsPage> {
 
     _movie = widget.movie;
 
-    MoviesApi moviesApi = getIt.get<MoviesApi>();
-    _futureMovie = moviesApi.getMovieDetails(_movie.id);
+    MoviesRepository moviesRepository = getIt.get<MoviesRepository>();
+    _futureMovie = moviesRepository.getMovieDetails(_movie.id);
   }
 
   Widget _getImageWidget(Movie movie) {
@@ -102,7 +101,7 @@ class _DetailsPageState extends State<DetailsPage> {
 
     String formattedReleaseDate = outputFormat.format(inputDate);
 
-    DAO dao = getIt.get<DAO>();
+    MoviesRepository moviesRepository = getIt.get<MoviesRepository>();
 
     return Scaffold(
       appBar: AppBar(
@@ -115,7 +114,7 @@ class _DetailsPageState extends State<DetailsPage> {
               Icons.bookmark_border,
             ),
             onPressed: () async {
-              await dao.saveAsFavorite(movie);
+              await moviesRepository.saveAsFavorite(movie);
               setState(() {});
             },
           ) else IconButton(
@@ -124,7 +123,7 @@ class _DetailsPageState extends State<DetailsPage> {
               Icons.bookmark,
             ),
             onPressed: () async {
-              await dao.deleteFavorite(movie.id);
+              await moviesRepository.deleteFavorite(movie.id);
 
               setState(() {
                 movie.isFavorite = false;

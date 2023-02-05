@@ -1,7 +1,9 @@
-import 'package:fa_de_filme/repository/dao.dart';
-import 'package:fa_de_filme/repository/dao_impl.dart';
-import 'package:fa_de_filme/repository/movies_api.dart';
-import 'package:fa_de_filme/repository/movies_api_impl.dart';
+import 'package:fa_de_filme/repository/datasources/dao.dart';
+import 'package:fa_de_filme/repository/datasources/dao_impl.dart';
+import 'package:fa_de_filme/repository/datasources/movies_api.dart';
+import 'package:fa_de_filme/repository/datasources/movies_api_impl.dart';
+import 'package:fa_de_filme/repository/movies_repository.dart';
+import 'package:fa_de_filme/repository/movies_repository_impl.dart';
 import 'package:fa_de_filme/utils/constants.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get_it/get_it.dart';
@@ -34,4 +36,8 @@ Future<void> initServiceLocator() async {
   getIt.registerLazySingleton<MoviesApi>(() => MoviesApiImpl(dotenv.env['TMDB_KEY']!));
 
   getIt.registerLazySingleton<DAO>(() => DAOImpl(getIt.get<Future<Database>>()));
+
+  getIt.registerLazySingleton<MoviesRepository>(() {
+    return MoviesRepositoryImpl(getIt.get<DAO>(), getIt.get<MoviesApi>());
+  });
 }
