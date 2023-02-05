@@ -2,9 +2,9 @@ import 'package:fa_de_filme/models/movie.dart';
 import 'package:fa_de_filme/models/movies_list_response.dart';
 
 abstract class MoviesApi {
-  String apiKey;
+  final String apiKey;
 
-  MoviesApi(this.apiKey);
+  const MoviesApi(this.apiKey);
 
   Future<MoviesListResponse> getNowPlaying(int pageKey);
 

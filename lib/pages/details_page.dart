@@ -2,11 +2,11 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:easy_image_viewer/easy_image_viewer.dart';
 import 'package:fa_de_filme/di/service_locator.dart';
 import 'package:fa_de_filme/models/movie.dart';
+import 'package:fa_de_filme/repository/dao.dart';
 import 'package:fa_de_filme/repository/movies_api.dart';
 import 'package:fa_de_filme/utils/formatter.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:sqflite/sqflite.dart';
 
 /// Página de detalhes dos filmes
 class DetailsPage extends StatefulWidget {
@@ -32,33 +32,7 @@ class _DetailsPageState extends State<DetailsPage> {
     _futureMovie = moviesApi.getMovieDetails(_movie.id);
   }
 
-  /// Save a movie in the local database
-  Future<void> saveAsFavorite(Movie movie) async {
-    final database = await getIt.get<Future<Database>>();
-
-    if (!movie.isFavorite) {
-      movie.isFavorite = true;
-
-      await database.insert(
-        'favorites',
-        movie.toMap(),
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
-    }
-  }
-
-  /// Delete a movie from the local database
-  Future<void> deleteFavorite(int id) async {
-    final database = await getIt.get<Future<Database>>();
-
-    await database.delete(
-      'favorites',
-      where: 'id = ?',
-      whereArgs: [id],
-    );
-  }
-
-  Widget getImageWidget(Movie movie) {
+  Widget _getImageWidget(Movie movie) {
     String imagePath = movie.posterPath;
     double imgHeight = 208.0;
 
@@ -128,6 +102,8 @@ class _DetailsPageState extends State<DetailsPage> {
 
     String formattedReleaseDate = outputFormat.format(inputDate);
 
+    DAO dao = getIt.get<DAO>();
+
     return Scaffold(
       appBar: AppBar(
         title: Text(movie.title),
@@ -139,7 +115,7 @@ class _DetailsPageState extends State<DetailsPage> {
               Icons.bookmark_border,
             ),
             onPressed: () async {
-              await saveAsFavorite(movie);
+              await dao.saveAsFavorite(movie);
               setState(() {});
             },
           ) else IconButton(
@@ -148,7 +124,7 @@ class _DetailsPageState extends State<DetailsPage> {
               Icons.bookmark,
             ),
             onPressed: () async {
-              await deleteFavorite(movie.id);
+              await dao.deleteFavorite(movie.id);
 
               setState(() {
                 movie.isFavorite = false;
@@ -167,7 +143,7 @@ class _DetailsPageState extends State<DetailsPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Center(
-                    child: getImageWidget(movie),
+                    child: _getImageWidget(movie),
                   ),
                   Padding(
                     padding: const EdgeInsets.only(top: 8.0),

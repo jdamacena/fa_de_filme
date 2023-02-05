@@ -1,3 +1,5 @@
+import 'package:fa_de_filme/repository/dao.dart';
+import 'package:fa_de_filme/repository/dao_impl.dart';
 import 'package:fa_de_filme/repository/movies_api.dart';
 import 'package:fa_de_filme/repository/movies_api_impl.dart';
 import 'package:fa_de_filme/utils/constants.dart';
@@ -30,4 +32,6 @@ Future<void> initServiceLocator() async {
   );
 
   getIt.registerLazySingleton<MoviesApi>(() => MoviesApiImpl(dotenv.env['TMDB_KEY']!));
+
+  getIt.registerLazySingleton<DAO>(() => DAOImpl(getIt.get<Future<Database>>()));
 }
