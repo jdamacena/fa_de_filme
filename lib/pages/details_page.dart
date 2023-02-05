@@ -1,9 +1,9 @@
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:easy_image_viewer/easy_image_viewer.dart';
 import 'package:fa_de_filme/di/service_locator.dart';
 import 'package:fa_de_filme/models/movie.dart';
 import 'package:fa_de_filme/repository/movies_repository.dart';
 import 'package:fa_de_filme/utils/formatter.dart';
+import 'package:fa_de_filme/widgets/image_dialog.dart';
+import 'package:fa_de_filme/widgets/poster_image.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -22,49 +22,13 @@ class _DetailsPageState extends State<DetailsPage> {
   late Future<Movie> _futureMovie;
 
   @override
-  void initState()  {
+  void initState() {
     super.initState();
 
     _movie = widget.movie;
 
     MoviesRepository moviesRepository = getIt.get<MoviesRepository>();
     _futureMovie = moviesRepository.getMovieDetails(_movie.id);
-  }
-
-  Widget _getImageWidget(Movie movie) {
-    String imagePath = movie.posterPath;
-    double imgHeight = 208.0;
-
-
-    return GestureDetector(
-      onTap: () => _showImageModalFromUrl(movie.posterPath),
-      child: Material(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-        clipBehavior: Clip.antiAlias,
-        child: Expanded(
-          child: SizedBox(
-            height: imgHeight,
-            child: CachedNetworkImage(
-              imageUrl: imagePath,
-              placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
-              errorWidget: (context, url, error) => const Icon(Icons.image),
-              height: imgHeight,
-              fit: BoxFit.contain,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  void _showImageModalFromUrl(String imageUrl) {
-    final imageProvider = CachedNetworkImageProvider(imageUrl);
-
-    showImageViewer(
-      context,
-      imageProvider,
-      doubleTapZoomable: true,
-    );
   }
 
   @override
@@ -107,29 +71,31 @@ class _DetailsPageState extends State<DetailsPage> {
       appBar: AppBar(
         title: Text(movie.title),
         actions: [
-          if(!movie.isFavorite)
-          IconButton(
-            tooltip: "Favoritar",
-            icon: const Icon(
-              Icons.bookmark_border,
-            ),
-            onPressed: () async {
-              await moviesRepository.saveAsFavorite(movie);
-              setState(() {});
-            },
-          ) else IconButton(
-            tooltip: "Remover Favorito",
-            icon: const Icon(
-              Icons.bookmark,
-            ),
-            onPressed: () async {
-              await moviesRepository.deleteFavorite(movie.id);
+          if (!movie.isFavorite)
+            IconButton(
+              tooltip: "Favoritar",
+              icon: const Icon(
+                Icons.bookmark_border,
+              ),
+              onPressed: () async {
+                await moviesRepository.saveAsFavorite(movie);
+                setState(() {});
+              },
+            )
+          else
+            IconButton(
+              tooltip: "Remover Favorito",
+              icon: const Icon(
+                Icons.bookmark,
+              ),
+              onPressed: () async {
+                await moviesRepository.deleteFavorite(movie.id);
 
-              setState(() {
-                movie.isFavorite = false;
-              });
-            },
-          ) ,
+                setState(() {
+                  movie.isFavorite = false;
+                });
+              },
+            ),
         ],
       ),
       body: ListView(
@@ -142,7 +108,13 @@ class _DetailsPageState extends State<DetailsPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Center(
-                    child: _getImageWidget(movie),
+                    child: PosterImage(
+                      imageUrl: movie.posterPath,
+                      onTap: () => showDialog(
+                        context: context,
+                        builder: (_) => ImageDialog(movie.posterPath),
+                      ),
+                    ),
                   ),
                   Padding(
                     padding: const EdgeInsets.only(top: 8.0),
