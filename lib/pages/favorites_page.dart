@@ -1,10 +1,9 @@
 import 'package:fa_de_filme/di/service_locator.dart';
+import 'package:fa_de_filme/models/movie.dart';
+import 'package:fa_de_filme/pages/details_page.dart';
 import 'package:fa_de_filme/repository/movies_repository.dart';
 import 'package:fa_de_filme/widgets/movie_grid_tile.dart';
 import 'package:flutter/material.dart';
-
-import '../models/movie.dart';
-import 'details_page.dart';
 
 /// Página de filmes favoritos
 class FavoritesPage extends StatefulWidget {
@@ -36,7 +35,9 @@ class _FavoritesPageState extends State<FavoritesPage> {
         }
 
         // By default, show a loading spinner.
-        return const CircularProgressIndicator();
+        return const Center(
+          child: CircularProgressIndicator(),
+        );
       },
     );
     return Scaffold(
@@ -73,32 +74,41 @@ class _FavoritesPageState extends State<FavoritesPage> {
       );
     }
 
-    return Container(
-      color: Colors.deepPurple.withAlpha(220),
-      child: GridView.builder(
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: axisCount,
-          childAspectRatio: 0.75,
-        ),
-        padding: const EdgeInsets.all(8.0),
-        itemCount: list.length,
-        itemBuilder: ((context, index) {
-          var movie = list[index];
+    return RefreshIndicator(
+      onRefresh: refreshPage,
+      child: Container(
+        color: Colors.deepPurple.withAlpha(220),
+        child: GridView.builder(
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: axisCount,
+            childAspectRatio: 0.75,
+          ),
+          padding: const EdgeInsets.all(8.0),
+          itemCount: list.length,
+          itemBuilder: ((context, index) {
+            var movie = list[index];
 
-          return MovieGridTile(
-            movie: movie,
-            onTap: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) {
-                    return DetailsPage(movie: movie);
-                  },
-                ),
-              );
-            },
-          );
-        }),
+            return MovieGridTile(
+              movie: movie,
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) {
+                      return DetailsPage(movie: movie);
+                    },
+                  ),
+                );
+              },
+            );
+          }),
+        ),
       ),
     );
+  }
+
+  Future<void> refreshPage() async {
+    setState(() {
+      futureAlbum = getIt.get<MoviesRepository>().listFavoriteMovies();
+    });
   }
 }
