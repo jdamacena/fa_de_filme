@@ -15,6 +15,7 @@ class FavoritesPage extends StatefulWidget {
 
 class _FavoritesPageState extends State<FavoritesPage> {
   late Future<List<Movie>> futureAlbum;
+  final _animatedGridKey = GlobalKey<AnimatedGridState>();
 
   @override
   void initState() {
@@ -24,7 +25,6 @@ class _FavoritesPageState extends State<FavoritesPage> {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: 05/02/2023 add pull to refresh functionality
     var content = FutureBuilder<List<Movie>>(
       future: futureAlbum,
       builder: (context, snapshot) {
@@ -75,30 +75,59 @@ class _FavoritesPageState extends State<FavoritesPage> {
     }
 
     return RefreshIndicator(
+      key: UniqueKey(),
       onRefresh: refreshPage,
       child: Container(
         color: Colors.deepPurple.withAlpha(220),
-        child: GridView.builder(
+        child: AnimatedGrid(
+          key: _animatedGridKey,
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: axisCount,
             childAspectRatio: 0.75,
           ),
           padding: const EdgeInsets.all(8.0),
-          itemCount: list.length,
-          itemBuilder: ((context, index) {
+          initialItemCount: list.length,
+          itemBuilder: ((context, index, animation) {
             var movie = list[index];
 
-            return MovieGridTile(
-              movie: movie,
-              onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) {
-                      return DetailsPage(movie: movie);
-                    },
-                  ),
-                );
-              },
+            return SizeTransition(
+              key: Key(movie.id.toString()),
+              sizeFactor: animation.drive(CurveTween(curve: Curves.bounceInOut)),
+              child: MovieGridTile(
+                movie: movie,
+                onTap: () async {
+                  final Movie? resultMovie = await Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) {
+                        return DetailsPage(movie: movie);
+                      },
+                    ),
+                  );
+
+                  if (resultMovie?.isFavorite != movie.isFavorite) {
+
+                    _animatedGridKey.currentState?.removeItem(
+                      index,
+                      duration: const Duration(milliseconds: 500),
+                      (context, animation) {
+                        return FadeTransition(
+                          opacity: animation.drive(Tween<double>(
+                            begin: 0.0,
+                            end: 1.0,
+                          )),
+                          key: Key(movie.id.toString()),
+                          child: MovieGridTile(movie: movie, onTap: null),
+                        );
+                      },
+                    );
+                    list.removeAt(index);
+
+                    if (list.isEmpty) {
+                      refreshPage();
+                    }
+                  }
+                },
+              ),
             );
           }),
         ),

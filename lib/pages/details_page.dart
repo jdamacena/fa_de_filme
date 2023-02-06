@@ -98,67 +98,73 @@ class _DetailsPageState extends State<DetailsPage> {
             ),
         ],
       ),
-      body: ListView(
-        children: [
-          Card(
-            margin: const EdgeInsets.all(8.0),
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Center(
-                    child: PosterImage(
-                      imageUrl: movie.posterPath,
-                      onTap: () => showDialog(
-                        context: context,
-                        builder: (_) => ImageDialog(movie.posterPath),
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
-                    child: Text(
-                      movie.title,
-                      style: const TextStyle(
-                        fontStyle: FontStyle.italic,
-                        fontSize: 24.0,
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text("Data de lançamento: $formattedReleaseDate"),
-                        Text("Duração: ${(movie.runtime > 0) ? Formatter.minutesToFormattedDuration(movie.runtime) : "-"}"),
-                        Row(
-                          children: [
-                            Text(
-                                "Nota: ${(movie.voteAverage >= 0) ? movie.voteAverage.toStringAsFixed(2) : "-"}/10"),
-                            const Icon(Icons.star, size: 16.0),
-                          ],
+      body: WillPopScope(
+        onWillPop: () async {
+          Navigator.of(context).pop(movie);
+          return false;
+        },
+        child: ListView(
+          children: [
+            Card(
+              margin: const EdgeInsets.all(8.0),
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Center(
+                      child: PosterImage(
+                        imageUrl: movie.posterPath,
+                        onTap: () => showDialog(
+                          context: context,
+                          builder: (_) => ImageDialog(movie.posterPath),
                         ),
-                      ],
+                      ),
                     ),
-                  ),
-                  const Divider(),
-                  Text(movie.overview),
-                ],
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: Text(
+                        movie.title,
+                        style: const TextStyle(
+                          fontStyle: FontStyle.italic,
+                          fontSize: 24.0,
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text("Data de lançamento: $formattedReleaseDate"),
+                          Text("Duração: ${(movie.runtime > 0) ? Formatter.minutesToFormattedDuration(movie.runtime) : "-"}"),
+                          Row(
+                            children: [
+                              Text(
+                                  "Nota: ${(movie.voteAverage >= 0) ? movie.voteAverage.toStringAsFixed(2) : "-"}/10"),
+                              const Icon(Icons.star, size: 16.0),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Divider(),
+                    Text(movie.overview),
+                  ],
+                ),
               ),
             ),
-          ),
-          if (error != null)
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text(
-                error,
-                textAlign: TextAlign.center,
-                style: const TextStyle(color: Colors.red),
+            if (error != null)
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  error,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(color: Colors.red),
+                ),
               ),
-            ),
-        ],
+          ],
+        ),
       ),
     );
   }
