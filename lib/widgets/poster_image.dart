@@ -21,18 +21,16 @@ class PosterImage extends StatelessWidget {
       child: Material(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4.0)),
         clipBehavior: Clip.antiAlias,
-        child: Expanded(
-          child: SizedBox(
-            height: imgHeight,
-            child: CachedNetworkImage(
-              imageUrl: imageUrl,
-              placeholder: (context, url) => const Center(
-                child: CircularProgressIndicator(),
-              ),
-              errorWidget: (context, url, error) => const Icon(Icons.image),
-              height: imgHeight,
-              fit: BoxFit.contain,
+        child: SizedBox(
+          height: imgHeight,
+          child: CachedNetworkImage(
+            imageUrl: imageUrl,
+            placeholder: (context, url) => const Center(
+              child: CircularProgressIndicator(),
             ),
+            errorWidget: (context, url, error) => const Icon(Icons.image),
+            height: imgHeight,
+            fit: BoxFit.contain,
           ),
         ),
       ),
