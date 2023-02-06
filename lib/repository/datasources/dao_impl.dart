@@ -39,7 +39,7 @@ class DAOImpl extends DAO {
 
     final List<Map<String, dynamic>> maps = await database.query('favorites');
 
-    return List.generate(maps.length, (i) {
+    var list = List.generate(maps.length, (i) {
       return Movie(
         id: maps[i]['id'],
         title: maps[i]['title'],
@@ -51,5 +51,9 @@ class DAOImpl extends DAO {
         voteAverage: maps[i]['vote_average'],
       );
     });
+
+    list.sort((a, b) => a.title.compareTo(b.title));
+
+    return list;
   }
 }
