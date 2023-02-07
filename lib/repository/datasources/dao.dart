@@ -9,4 +9,6 @@ abstract class DAO {
   Future<void> deleteFavorite(int id);
 
   Future<List<Movie>> listFavoriteMovies();
+
+  Future<bool> isFavorite(int id);
 }

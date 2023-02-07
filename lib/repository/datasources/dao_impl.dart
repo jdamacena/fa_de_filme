@@ -56,4 +56,17 @@ class DAOImpl extends DAO {
 
     return list;
   }
+
+  @override
+  Future<bool> isFavorite(int id) async {
+    var database = await futureDatabase;
+
+    final List<Map<String, dynamic>> maps = await database.query(
+      'favorites',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+
+    return maps.isNotEmpty;
+  }
 }

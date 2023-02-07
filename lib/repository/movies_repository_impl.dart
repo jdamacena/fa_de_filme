@@ -34,4 +34,9 @@ class MoviesRepositoryImpl extends MoviesRepository {
   Future<void> saveAsFavorite(Movie movie) {
     return dao.saveAsFavorite(movie);
   }
+
+  @override
+  Future<bool> isFavorite(int id) {
+    return dao.isFavorite(id);
+  }
 }

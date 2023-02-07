@@ -12,6 +12,8 @@ abstract class MoviesRepository {
 
   Future<void> deleteFavorite(int id);
 
+  Future<bool> isFavorite(int id);
+
   Future<MoviesListResponse> getNowPlaying(int pageKey);
 
   Future<List<Movie>> listFavoriteMovies();

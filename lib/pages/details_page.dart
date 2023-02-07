@@ -19,16 +19,19 @@ class DetailsPage extends StatefulWidget {
 
 class _DetailsPageState extends State<DetailsPage> {
   late Movie _movie;
-  late Future<Movie> _futureMovie;
+  late MoviesRepository _moviesRepository;
 
   @override
   void initState() {
     super.initState();
 
     _movie = widget.movie;
-
-    MoviesRepository moviesRepository = getIt.get<MoviesRepository>();
-    _futureMovie = moviesRepository.getMovieDetails(_movie.id);
+    _moviesRepository = getIt.get<MoviesRepository>();
+    _moviesRepository
+        .isFavorite(_movie.id)
+        .then((value) => setState(() {
+          _movie.isFavorite = value;
+        }));
   }
 
   @override
@@ -36,20 +39,19 @@ class _DetailsPageState extends State<DetailsPage> {
     var movie = _movie;
 
     return FutureBuilder<Movie>(
-      future: _futureMovie,
+      future: _moviesRepository.getMovieDetails(movie.id),
       builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          _movie = snapshot.data!;
-
-          _movie.isFavorite = movie.isFavorite;
-
-          movie = _movie;
+        if (snapshot.hasData && snapshot.data != null) {
+          movie = snapshot.data!
+            ..isFavorite = movie.isFavorite;
 
           return getPageContent(movie);
         } else if (snapshot.hasError) {
-          return getPageContent(movie,
-              error:
-                  "Algumas informações não puderam ser carregadas, verifique sua conexão com a internet.");
+          return getPageContent(
+            movie,
+            error:
+                "Algumas informações não puderam ser carregadas, verifique sua conexão com a internet.",
+          );
         }
 
         // By default, show the movie info received from the list.
@@ -65,8 +67,6 @@ class _DetailsPageState extends State<DetailsPage> {
 
     String formattedReleaseDate = outputFormat.format(inputDate);
 
-    MoviesRepository moviesRepository = getIt.get<MoviesRepository>();
-
     return Scaffold(
       appBar: AppBar(
         title: Text(movie.title),
@@ -78,8 +78,10 @@ class _DetailsPageState extends State<DetailsPage> {
                 Icons.bookmark_border,
               ),
               onPressed: () async {
-                await moviesRepository.saveAsFavorite(movie);
-                setState(() {});
+                await _moviesRepository.saveAsFavorite(movie);
+                setState(() {
+                  _movie.isFavorite = true;
+                });
               },
             )
           else
@@ -89,10 +91,10 @@ class _DetailsPageState extends State<DetailsPage> {
                 Icons.bookmark,
               ),
               onPressed: () async {
-                await moviesRepository.deleteFavorite(movie.id);
+                await _moviesRepository.deleteFavorite(movie.id);
 
                 setState(() {
-                  movie.isFavorite = false;
+                  _movie.isFavorite = false;
                 });
               },
             ),
@@ -100,7 +102,7 @@ class _DetailsPageState extends State<DetailsPage> {
       ),
       body: WillPopScope(
         onWillPop: () async {
-          Navigator.of(context).pop(movie);
+          Navigator.of(context).pop(_movie);
           return false;
         },
         child: ListView(

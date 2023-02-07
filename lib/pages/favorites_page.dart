@@ -104,7 +104,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
                     ),
                   );
 
-                  if (resultMovie?.isFavorite != movie.isFavorite) {
+                  if (!(resultMovie!.isFavorite)) {
 
                     _animatedGridKey.currentState?.removeItem(
                       index,
