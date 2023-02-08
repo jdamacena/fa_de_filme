@@ -36,26 +36,24 @@ class _DetailsPageState extends State<DetailsPage> {
 
   @override
   Widget build(BuildContext context) {
-    var movie = _movie;
-
     return FutureBuilder<Movie>(
-      future: _moviesRepository.getMovieDetails(movie.id),
+      future: _moviesRepository.getMovieDetails(_movie.id),
       builder: (context, snapshot) {
         if (snapshot.hasData && snapshot.data != null) {
-          movie = snapshot.data!
-            ..isFavorite = movie.isFavorite;
+          _movie = snapshot.data!
+            ..isFavorite = _movie.isFavorite;
 
-          return getPageContent(movie);
+          return getPageContent(_movie);
         } else if (snapshot.hasError) {
           return getPageContent(
-            movie,
+            _movie,
             error:
                 "Algumas informações não puderam ser carregadas, verifique sua conexão com a internet.",
           );
         }
 
         // By default, show the movie info received from the list.
-        return getPageContent(movie);
+        return getPageContent(_movie);
       },
     );
   }
