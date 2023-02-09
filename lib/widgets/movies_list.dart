@@ -1,13 +1,10 @@
-import 'dart:convert';
-
+import 'package:fa_de_filme/di/service_locator.dart';
 import 'package:fa_de_filme/models/movie.dart';
 import 'package:fa_de_filme/models/movies_list_response.dart';
 import 'package:fa_de_filme/pages/details_page.dart';
-import 'package:fa_de_filme/utils/constants.dart';
+import 'package:fa_de_filme/repository/movies_repository.dart';
 import 'package:fa_de_filme/widgets/movie_grid_tile.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:http/http.dart' as http;
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 
 class MoviesListWidget extends StatefulWidget {
@@ -32,35 +29,11 @@ class MoviesListWidgetState extends State<MoviesListWidget> {
     super.initState();
   }
 
-  Future<MoviesListResponse> getMoviesList(int pageKey) async {
-    final url = Uri(
-      scheme: 'https',
-      host: Constants.movieBaseUrl,
-      path: '3/movie/now_playing',
-      queryParameters: {
-        'api_key': dotenv.env['TMDB_KEY']!, // read it here
-        'include_adult': 'false',
-        'language': 'pt-BR',
-        'page': '$pageKey',
-      },
-    );
-
-    final response = await http.get(url);
-
-    if (response.statusCode == 200) {
-      // If the server did return a 200 OK response,
-      // then parse the JSON.
-      return MoviesListResponse.fromJson(jsonDecode(response.body));
-    } else {
-      // If the server did not return a 200 OK response,
-      // then throw an exception.
-      throw Exception('Erro ao carregar filmes');
-    }
-  }
-
   Future<void> _fetchMoviesPage(int pageKey) async {
+    MoviesRepository moviesRepository = getIt.get<MoviesRepository>();
+
     try {
-      MoviesListResponse moviesListResponse = await getMoviesList(pageKey);
+      MoviesListResponse moviesListResponse = await moviesRepository.getNowPlaying(pageKey);
       List<Movie> newItems = moviesListResponse.results;
 
       final isLastPage = newItems.length < _pageSize;
@@ -109,7 +82,6 @@ class MoviesListWidgetState extends State<MoviesListWidget> {
         showNoMoreItemsIndicatorAsGridChild: false,
         builderDelegate: PagedChildBuilderDelegate<Movie>(
           itemBuilder: (context, movie, index) {
-            movie.posterPath = Constants.imageBaseUrl + movie.posterPath;
 
             return MovieGridTile(
               movie: movie,
