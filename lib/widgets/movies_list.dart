@@ -1,11 +1,9 @@
 import 'package:fa_de_filme/di/service_locator.dart';
 import 'package:fa_de_filme/models/movie.dart';
-import 'package:fa_de_filme/models/movies_list_response.dart';
 import 'package:fa_de_filme/pages/details_page.dart';
 import 'package:fa_de_filme/repository/movies_repository.dart';
 import 'package:fa_de_filme/widgets/movie_grid_tile.dart';
 import 'package:flutter/material.dart';
-import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 
 class MoviesListWidget extends StatefulWidget {
   const MoviesListWidget({super.key});
@@ -16,37 +14,42 @@ class MoviesListWidget extends StatefulWidget {
 
 class MoviesListWidgetState extends State<MoviesListWidget> {
   static const _pageSize = 20;
-
-  final PagingController<int, Movie> _pagingController =
-      PagingController(firstPageKey: 1);
+  final ValueNotifier<List<Movie>> _movies = ValueNotifier<List<Movie>>([]);
+  int _currentPage = 1;
+  bool _isLoading = false;
+  bool _hasNextPage = true;
 
   @override
   void initState() {
-    _pagingController.addPageRequestListener((pageKey) {
-      _fetchMoviesPage(pageKey);
-    });
-
     super.initState();
+    _loadNextPage();
   }
 
-  Future<void> _fetchMoviesPage(int pageKey) async {
-    MoviesRepository moviesRepository = getIt.get<MoviesRepository>();
+  Future<void> _loadNextPage() async {
+    if (_isLoading || !_hasNextPage) return;
+
+    setState(() => _isLoading = true);
 
     try {
-      MoviesListResponse moviesListResponse = await moviesRepository.getNowPlaying(pageKey);
-      List<Movie> newItems = moviesListResponse.results;
+      final moviesRepository = getIt.get<MoviesRepository>();
+      final moviesResponse = await moviesRepository.getNowPlaying(_currentPage);
+      final newMovies = moviesResponse.results;
 
-      final isLastPage = newItems.length < _pageSize;
-
-      if (isLastPage) {
-        _pagingController.appendLastPage(newItems);
-      } else {
-        final nextPageKey = pageKey + 1;
-        _pagingController.appendPage(newItems, nextPageKey);
-      }
+      _movies.value = [..._movies.value, ...newMovies];
+      _hasNextPage = newMovies.length >= _pageSize;
+      _currentPage++;
     } catch (error) {
-      _pagingController.error = error;
+      debugPrint('Error loading movies: $error');
+    } finally {
+      setState(() => _isLoading = false);
     }
+  }
+
+  Future<void> _refresh() async {
+    _currentPage = 1;
+    _hasNextPage = true;
+    _movies.value = [];
+    await _loadNextPage();
   }
 
   @override
@@ -60,50 +63,57 @@ class MoviesListWidgetState extends State<MoviesListWidget> {
       axisCount = 4;
     } else if (screenWidth >= 576.0) {
       axisCount = 3;
-    } else {
-      axisCount = 2;
     }
 
-    var gridDelegate = SliverGridDelegateWithFixedCrossAxisCount(
-      crossAxisCount: axisCount,
-      childAspectRatio: 0.75,
-    );
-
     return RefreshIndicator(
-      onRefresh: () => Future.sync(
-        () => _pagingController.refresh(),
-      ),
-      child: PagedGridView<int, Movie>(
-        padding: const EdgeInsets.all(0.0),
-        gridDelegate: gridDelegate,
-        pagingController: _pagingController,
-        showNewPageProgressIndicatorAsGridChild: false,
-        showNewPageErrorIndicatorAsGridChild: false,
-        showNoMoreItemsIndicatorAsGridChild: false,
-        builderDelegate: PagedChildBuilderDelegate<Movie>(
-          itemBuilder: (context, movie, index) {
+      onRefresh: _refresh,
+      child: ValueListenableBuilder<List<Movie>>(
+        valueListenable: _movies,
+        builder: (context, movies, child) {
+          return NotificationListener<ScrollNotification>(
+            onNotification: (ScrollNotification scrollInfo) {
+              if (!_isLoading &&
+                  _hasNextPage &&
+                  scrollInfo.metrics.pixels >= scrollInfo.metrics.maxScrollExtent * 0.9) {
+                _loadNextPage();
+              }
+              return true;
+            },
+            child: GridView.builder(
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: axisCount,
+                childAspectRatio: 0.75,
+              ),
+              itemCount: movies.length + (_hasNextPage ? 1 : 0),
+              itemBuilder: (context, index) {
+                if (index >= movies.length) {
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }
 
-            return MovieGridTile(
-              movie: movie,
-              onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) {
-                      return DetailsPage(movie: movie);
-                    },
-                  ),
+                final movie = movies[index];
+                return MovieGridTile(
+                  movie: movie,
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => DetailsPage(movie: movie),
+                      ),
+                    );
+                  },
                 );
               },
-            );
-          },
-        ),
+            ),
+          );
+        },
       ),
     );
   }
 
   @override
   void dispose() {
-    _pagingController.dispose();
+    _movies.dispose();
     super.dispose();
   }
 }
