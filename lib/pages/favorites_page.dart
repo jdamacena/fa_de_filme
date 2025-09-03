@@ -63,10 +63,10 @@ class _FavoritesPageState extends State<FavoritesPage> {
     }
 
     if (list.isEmpty) {
-      return Center(
+      return const Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          children: const [
+          children: [
             Icon(Icons.movie, size: 36.0,),
             Text("Você ainda não salvou nenhum filme"),
           ],

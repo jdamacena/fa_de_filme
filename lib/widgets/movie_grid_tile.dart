@@ -9,10 +9,10 @@ class MovieGridTile extends StatelessWidget {
   final void Function()? onTap;
 
   const MovieGridTile({
-    Key? key,
+    super.key,
     required this.movie,
     required this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
